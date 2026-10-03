@@ -1,5 +1,5 @@
-# Frontend only → Netlify
-# Backend → Vercel (set VITE_API_URL in Netlify env after API is live)
+# Frontend on Netlify — browser calls /api on same site
+# Netlify proxies /api → Vercel (avoids browser timeout to vercel.app)
 
 [build]
   base = "client"
@@ -8,9 +8,17 @@
 
 [build.environment]
   NODE_VERSION = "20"
-  # Set this in Netlify UI (Site settings → Environment variables):
-  # VITE_API_URL = https://YOUR-APP.vercel.app/api
+  # Same-origin API via proxy below (do NOT set Vercel URL in VITE_API_URL)
+  VITE_API_URL = "/api"
 
+# Proxy API to Vercel backend (must be BEFORE SPA fallback)
+[[redirects]]
+  from = "/api/*"
+  to = "https://dept-c-o3xu.vercel.app/api/:splat"
+  status = 200
+  force = true
+
+# SPA
 [[redirects]]
   from = "/*"
   to = "/index.html"
