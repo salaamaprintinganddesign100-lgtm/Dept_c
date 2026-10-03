@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "installCommand": "npm install --prefix server",
+  "buildCommand": "npm run db:generate --prefix server && npm run db:push --prefix server",
+  "functions": {
+    "api/index.js": {
+      "maxDuration": 30,
+      "includeFiles": "server/**"
+    }
+  },
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/api" }
+  ]
+}

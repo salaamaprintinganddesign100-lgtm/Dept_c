@@ -1,0 +1,155 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String   @id @default(cuid())
+  name            String
+  email           String   @unique
+  password        String
+  roleId          String
+  role            Role     @relation(fields: [roleId], references: [id])
+  isActive        Boolean  @default(true)
+  assignedClasses Class[]  @relation("ClassTeacher")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Role {
+  id          String           @id @default(cuid())
+  name        String           @unique
+  description String?
+  users       User[]
+  permissions RolePermission[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+}
+
+model Permission {
+  id          String           @id @default(cuid())
+  name        String           @unique
+  description String?
+  resource    String
+  action      String
+  roles       RolePermission[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@unique([resource, action])
+}
+
+model RolePermission {
+  id           String     @id @default(cuid())
+  roleId       String
+  permissionId String
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, permissionId])
+}
+
+model Class {
+  id              String    @id @default(cuid())
+  className       String
+  classCode       String    @unique
+  academicYear    String
+  /// Display name (synced from assigned teacher)
+  teacher         String
+  /// Assigned teacher account (Express-style scope)
+  teacherId       String?
+  assignedTeacher User?     @relation("ClassTeacher", fields: [teacherId], references: [id])
+  startTime       String
+  endTime         String
+  courseName      String
+  courseDuration  String
+  startDate       DateTime
+  endDate         DateTime
+  /// Shared Computer book level for the whole class (1–6). Like Express class currentLevel.
+  currentLevel    Int       @default(1)
+  students        Student[]
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model Student {
+  id               String         @id @default(cuid())
+  studentId        String         @unique
+  name             String
+  phone            String?
+  parentPhone      String?
+  picture          String?
+  enrollmentStatus String         @default("ENROLLED")
+  /// Mirrors class.currentLevel (kept in sync — not advanced alone)
+  currentLevel     Int            @default(1)
+  classId          String
+  class            Class          @relation(fields: [classId], references: [id])
+  exams            Exam[]
+  bookProgress     BookProgress[]
+  attendances      Attendance[]
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+}
+
+model Exam {
+  id          String    @id @default(cuid())
+  studentId   String
+  student     Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  type        String
+  title       String
+  /// PAPER = 40, PRACTICAL = 60 (total 100)
+  maxMarks    Float     @default(40)
+  status      String    @default("PENDING")
+  score       Float?
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([studentId, type])
+}
+
+model Book {
+  id        String         @id @default(cuid())
+  title     String
+  order     Int            @unique
+  progress  BookProgress[]
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+}
+
+model BookProgress {
+  id                   String    @id @default(cuid())
+  studentId            String
+  bookId               String
+  student              Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  book                 Book      @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  paperStatus          String    @default("PENDING")
+  practicalStatus      String    @default("PENDING")
+  /// Paper max 40, Practical max 60 (same as course exams)
+  paperScore           Float?
+  practicalScore       Float?
+  paperCompletedAt     DateTime?
+  practicalCompletedAt DateTime?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  @@unique([studentId, bookId])
+}
+
+model Attendance {
+  id        String   @id @default(cuid())
+  studentId String
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  date      DateTime
+  status    String
+  note      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([studentId, date])
+}

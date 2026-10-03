@@ -1,0 +1,24 @@
+{
+  "name": "dept-c",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "DEPT_C - Computer department management system",
+  "scripts": {
+    "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "dev:server": "npm run dev --prefix server",
+    "dev:client": "npm run dev --prefix client",
+    "install:all": "npm install && npm install --prefix server && npm install --prefix client",
+    "build": "npm run build --prefix client",
+    "start": "npm run start --prefix server",
+    "db:generate": "npm run db:generate --prefix server",
+    "db:migrate": "npm run db:migrate --prefix server",
+    "db:push": "npm run db:push --prefix server",
+    "db:seed": "npm run db:seed --prefix server",
+    "render:build": "npm install --prefix server && npm install --prefix client && npm run build --prefix client && npm run db:generate --prefix server",
+    "render:start": "npm run db:push --prefix server && node server/scripts/boot.js"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

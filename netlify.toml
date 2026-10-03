@@ -1,0 +1,17 @@
+# Frontend only → Netlify
+# Backend → Vercel (set VITE_API_URL in Netlify env after API is live)
+
+[build]
+  base = "client"
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+  # Set this in Netlify UI (Site settings → Environment variables):
+  # VITE_API_URL = https://YOUR-APP.vercel.app/api
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
