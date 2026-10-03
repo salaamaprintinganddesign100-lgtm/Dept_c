@@ -39,12 +39,22 @@ app.use(
 );
 app.use(express.json({ limit: "8mb" }));
 
+app.get("/", (_req, res) => {
+  res.json({
+    status: "ok",
+    app: "DEPT_C API",
+    health: "/api/health",
+    login: "POST /api/session/login",
+  });
+});
+
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", app: "DEPT_C", host: "vercel+neon" });
 });
 
-app.use("/api/setup", setupRoutes);
-app.use("/api/auth", authRoutes);
+/** Note: /api/auth is reserved on Vercel — use /api/session */
+app.use("/api/bootstrap", setupRoutes);
+app.use("/api/session", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/roles", roleRoutes);
 app.use("/api/permissions", permissionRoutes);

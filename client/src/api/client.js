@@ -20,9 +20,9 @@ async function request(path, options = {}) {
 }
 
 export const api = {
-  login: (body) => request("/auth/login", { method: "POST", body: JSON.stringify(body) }),
-  register: (body) => request("/auth/register", { method: "POST", body: JSON.stringify(body) }),
-  me: () => request("/auth/me"),
+  login: (body) => request("/session/login", { method: "POST", body: JSON.stringify(body) }),
+  register: (body) => request("/session/register", { method: "POST", body: JSON.stringify(body) }),
+  me: () => request("/session/me"),
   getStats: () => request("/dashboard"),
 
   getClasses: (q = "") => request(`/classes${q ? `?q=${encodeURIComponent(q)}` : ""}`),
