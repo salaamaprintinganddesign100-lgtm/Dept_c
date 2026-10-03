@@ -3,12 +3,9 @@
   "installCommand": "npm install",
   "buildCommand": "npx prisma generate && npx prisma db push",
   "functions": {
-    "api/index.js": {
+    "api/[...path].js": {
       "maxDuration": 30,
       "includeFiles": "{prisma/**,src/**,node_modules/.prisma/**,node_modules/@prisma/client/**}"
     }
-  },
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/api" }
-  ]
+  }
 }
